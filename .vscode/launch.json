@@ -1,0 +1,40 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch Server",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${command:cmake.launchTargetPath}",
+            "args": [
+                "localhost",
+                "4444"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/host",
+            "environment": [
+                {
+                    "name": "PATH",
+                    "value": "${env:PATH}:${command:cmake.getLaunchTargetDirectory}"
+                }
+            ],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask": "Build Server"
+        },
+        {
+            "name": "Debug Client",
+            "request": "launch",
+            "type": "debugpy",
+            "cwd": "${workspaceFolder}",
+            "module": "user",
+        }
+    ]
+}

@@ -1,0 +1,15 @@
+# This file allows you to do commands like `git add .` and instead of adding every single file, you can make it ignore certain files, folders, or patterns of each.
+
+# Don't add python runtime caching
+__pycache__
+__pytest.cache__
+
+# Don't add python virtual environments
+venv
+
+# Don't add build artifacts (if this is the build folder name, might need to change it depending on the project)
+build/
+
+# Don't add local environment variable files; these usually contain secrets that should NEVER be source controlled
+.env
+

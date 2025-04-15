@@ -1,0 +1,85 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Pull Cmocka",
+            "type": "shell",
+            "command": "git",
+            "args": [
+                "submodule",
+                "update",
+                "--init",
+                "--recursive"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/host"
+            }
+        },
+        {
+            "label": "Configure Cmocka",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "-S",
+                ".",
+                "-B",
+                "build",
+                "-DCMAKE_BUILD_TYPE=Debug"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/host/cmocka"
+            },
+            "dependsOn": "Pull Cmocka"
+        },
+        {
+            "label": "Build Cmocka",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "build"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/host/cmocka"
+            },
+            "dependsOn": "Configure Cmocka",
+            "problemMatcher": [
+                "$gcc"
+            ]
+        },
+        {
+            "label": "Configure Server",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "-S",
+                ".",
+                "-B",
+                "build",
+                "-DCMAKE_BUILD_TYPE=Debug"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/host"
+            },
+            "dependsOn": "Build Cmocka"
+        },
+        {
+            "label": "Build Server",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "build"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/host"
+            },
+            "dependsOn": "Configure Server",
+            "problemMatcher": [
+                "$gcc"
+            ]
+        }
+    ]
+}
