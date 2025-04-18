@@ -12,4 +12,3 @@ build/
 
 # Don't add local environment variable files; these usually contain secrets that should NEVER be source controlled
 .env
-

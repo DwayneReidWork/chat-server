@@ -62,5 +62,9 @@
             "localhost",
             "4444"
         ]
+    },
+    "files.associations": {
+        "*.py": "python",
+        "inet.h": "c"
     }
 }
