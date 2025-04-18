@@ -21,7 +21,6 @@ typedef struct
 int accept_connections(server_t *server);
 void broadcast_to_all_clients(const char *msg, int sender_socket);
 void *handle_client(void *arg);
-void receive_and_print_data(int socket_fd);
 int setup_server(server_t *server);
 
 // from netcomm.c

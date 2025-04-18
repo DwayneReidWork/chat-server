@@ -1,6 +1,7 @@
 import sys
 import threading
 from . import netcomm as n
+#import netcomm as n # used for debugging
 
 BUFFER = 1024
 
@@ -12,6 +13,7 @@ def send_msg():
         sys.exit()
         
     try:
+        message += "\0"
         success = n.send_all(client_socket, message.encode())
         if success:
             print("Message sent successfully!")
@@ -22,10 +24,16 @@ def send_msg():
 
 def receive_forever():
     while True:
+        buffer = b''
         try:
-            data = n.recv_expected(client_socket, BUFFER)
+            data = client_socket.recv(1)
+            
+            #data = n.recv_expected(client_socket, BUFFER)
             if data:
-                print(f'\nReceived: {data.decode()}')
+                buffer += data
+
+                if b'\0' in buffer:
+                    print(f'\nReceived: {buffer.decode()}')
             else:
                 print("Server disconnected.")
                 break

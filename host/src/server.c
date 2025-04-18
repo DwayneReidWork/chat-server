@@ -108,13 +108,14 @@ int setup_server(server_t *server)
 
 void *handle_client(void *arg)
 {
+    // needs to be void ptr because of hreading
     int client_socket = *(int *)arg;
-    free(arg); // Free the heap-allocated pointer now
+    free(arg);
 
     printf("Client connected. Socket #%d\n", client_socket);
     fflush(stdout);
 
-    const char *msg = "Connection successful\n";
+    const char *msg = "Connection successful\0";
     if (!send_all(client_socket, msg, strlen(msg)))
     {
         perror("Send failed");
@@ -122,9 +123,13 @@ void *handle_client(void *arg)
         return NULL;
     }
 
+    // why doesn't this print??!?!?!?!?!?!?
+    printf("Message Sent To Client!");
+
     // Continuously receive data from the client
     while (1)
     {
+        // recv_expected returns ptr to null terminated string
         char *data = recv_expected(client_socket, BUFFER_SIZE);
         if (data == NULL)
         {
@@ -186,6 +191,7 @@ int accept_connections(server_t *server)
     return 0;
 }
 
+// WIP
 void broadcast_to_all_clients(const char *msg, int sender_socket)
 {
     int clients[MAX_CONNECTIONS];
@@ -196,31 +202,5 @@ void broadcast_to_all_clients(const char *msg, int sender_socket)
         {
             send(clients[i], msg, strlen(msg), 0);
         }
-    }
-}
-
-// Function to handle receiving and processing data from a client
-void receive_and_print_data(int client_socket)
-{
-    while (1)
-    {
-        char *data = recv_expected(client_socket, BUFFER_SIZE);
-        if (NULL != data)
-        {
-            data[BUFFER_SIZE - 1] = '\0';
-            printf("Received: %s\n", data);
-        }
-
-        // Echo the received data back to the sender
-        if (!send_all(client_socket, data, strlen(data)))
-        {
-            perror("Send failed");
-            free(data);
-            break;
-        }
-
-        broadcast_to_all_clients(data, client_socket);
-
-        free(data);
     }
 }

@@ -30,7 +30,7 @@ char *recv_expected(int sock, size_t expected_len)
     char *recvd_bytes = (char *)malloc(expected_len);
     if (recvd_bytes == NULL)
     {
-        return NULL; // Memory allocation failed
+        return NULL;
     }
 
     size_t recvd_len = 0;
@@ -40,9 +40,33 @@ char *recv_expected(int sock, size_t expected_len)
         if (received == -1)
         {
             free(recvd_bytes);
-            return NULL; // Return NULL if recv fails
+            return NULL;
         }
         recvd_len += received;
+        printf("Received Len (variable): %ld", recvd_len);
     }
-    return recvd_bytes;
+
+    // Find null byte
+    size_t raw_data_before_null_byte = 0;
+    while (raw_data_before_null_byte < recvd_len && recvd_bytes[raw_data_before_null_byte] != '\0')
+    {
+        raw_data_before_null_byte++;
+    }
+
+    // memmory allocate length of data before null byte +1 for null
+    char *null_terminted_data = malloc(raw_data_before_null_byte + 1);
+    if (null_terminted_data == NULL)
+    {
+        free(recvd_bytes);
+        return NULL;
+    }
+
+    // Copy the data
+    memcpy(null_terminted_data, recvd_bytes, raw_data_before_null_byte);
+    null_terminted_data[raw_data_before_null_byte] = '\0';
+
+    printf("Null Terminated Data: %s", null_terminted_data);
+    free(recvd_bytes);
+
+    return null_terminted_data;
 }

@@ -65,6 +65,7 @@
     },
     "files.associations": {
         "*.py": "python",
-        "inet.h": "c"
+        "inet.h": "c",
+        "stdio.h": "c"
     }
 }
