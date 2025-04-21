@@ -33,6 +33,7 @@ def receive_forever():
                     print("Connection closed by peer.")
                     break
                 buffer += byte
+
                 if byte == b'\0':
                     break
 
@@ -40,7 +41,7 @@ def receive_forever():
                 print("Error: empty buffer.")
                 break
 
-            print(f'Buffer contents: {buffer}')
+            print(f'\nMessage Received: {buffer.decode()}')
 
         except ConnectionError as e:
             print(f"Connection Lost: {e}")
@@ -54,7 +55,6 @@ def receive_forever():
 
     client_socket.close()
     sys.exit()
-
 
 # new threads for receiving messages
 threading.Thread(target=receive_forever, daemon=True).start()

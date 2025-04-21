@@ -17,6 +17,8 @@
 #include "server.h"
 #include "netcomm.c"
 
+int clients[MAX_CONNECTIONS];
+
 int setup_server(server_t *server)
 {
 
@@ -115,61 +117,29 @@ void *handle_client(void *arg)
     printf("Client connected. Socket #%d\n", client_socket);
     fflush(stdout);
 
-    const char *msg = "Connection successful\0";
-    if (!send_all(client_socket, msg, strlen(msg)))
-    {
-        perror("Send failed");
-        close(client_socket);
-        return NULL;
-    }
-
-    // why doesn't this print??!?!?!?!?!?!?
-    printf("Message Sent To Client!\n");
-    fflush(stdout);
-
     // Continuously receive data from the client
     while (1)
     {
         // recv_expected returns ptr to null terminated string
         // using buffer doesnt work because its too big so its never reaches.
-        char *data = recv_expected(client_socket, 1);
-        if (data == NULL)
+        char *msg = recv_until_null(client_socket);
+        if (msg)
         {
-            printf("Client on socket %d disconnected or error occurred.\n", client_socket);
-            break;
+            printf("Socket %d sent: %s\n", client_socket, msg);
+            broadcast_to_all_clients(msg, client_socket);
+
+            free(msg);
         }
-
-        // char output[BUFFER_SIZE];
-        // int i = 0;
-
-        // while (*data != '\0' && i < BUFFER_SIZE)
-        // {
-        //     output[i] = *data;
-        //     i++;
-        //     data++;
-        // }
-        // output[i] = '\0';
-
-        printf("Received from %d: %s\n", client_socket, data);
-        fflush(stdout);
-
-        if (!send_all(client_socket, data, strlen(data)))
-        {
-            perror("Send failed");
-            free(data);
-            break;
-        }
-        broadcast_to_all_clients(data, client_socket);
-
-        free(data);
     }
-
-    close(client_socket);
-    return NULL;
 }
 
 int accept_connections(server_t *server)
 {
+    for (int i = 0; i < MAX_CONNECTIONS; i++)
+    {
+        clients[i] = -1;
+    }
+
     while (1)
     {
         int *new_connection = malloc(sizeof(int));
@@ -186,6 +156,8 @@ int accept_connections(server_t *server)
             free(new_connection);
             continue;
         }
+
+        add_client(*new_connection);
         printf("\nConnection received!\n");
         fflush(stdout);
 
@@ -208,13 +180,37 @@ int accept_connections(server_t *server)
 // WIP
 void broadcast_to_all_clients(const char *msg, int sender_socket)
 {
-    int clients[MAX_CONNECTIONS];
     for (int i = 0; i < MAX_CONNECTIONS; ++i)
     {
         // we have clients and not broacasting to self.
         if (clients[i] != -1 && clients[i] != sender_socket)
         {
-            send(clients[i], msg, strlen(msg), 0);
+            send_all(clients[i], msg, strlen(msg) + 1);
+        }
+    }
+}
+
+// Add client to the global clients[] array
+void add_client(int client_socket)
+{
+    for (int i = 0; i < MAX_CONNECTIONS; i++)
+    {
+        if (clients[i] == -1)
+        {
+            clients[i] = client_socket;
+            break;
+        }
+    }
+}
+
+void remove_client(int client_socket)
+{
+    for (int i = 0; i < MAX_CONNECTIONS; i++)
+    {
+        if (clients[i] == client_socket)
+        {
+            clients[i] = -1;
+            break;
         }
     }
 }
