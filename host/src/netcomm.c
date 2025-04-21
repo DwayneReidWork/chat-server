@@ -28,48 +28,52 @@ int send_all(int sock, const char *data, size_t data_len)
 char *recv_expected(int sock, size_t expected_len)
 {
     size_t recvd_len = 0;
-
-    char *recvd_bytes = (char *)malloc(expected_len);
-    if (recvd_bytes == NULL)
+    char *buffer = malloc(expected_len + 1);
+    if (!buffer)
     {
+        perror("malloc failed");
         return NULL;
     }
 
     while (recvd_len < expected_len)
     {
-        ssize_t received = recv(sock, recvd_bytes + recvd_len, expected_len - recvd_len, 0);
-        if (received == -1)
+        ssize_t received = recv(sock, buffer + recvd_len, expected_len - recvd_len, 0);
+        if (received <= 0)
         {
-            free(recvd_bytes);
+            free(buffer);
             return NULL;
         }
+
         recvd_len += received;
-        printf("Received Len (variable): %ld\n", recvd_len);
-        fflush(stdout);
     }
 
-    // Find null byte
-    size_t raw_data_before_null_byte = 0;
-    while (raw_data_before_null_byte < recvd_len && recvd_bytes[raw_data_before_null_byte] != '\0')
-    {
-        raw_data_before_null_byte++;
-    }
-
-    // memmory allocate length of data before null byte +1 for null
-    char *null_terminted_data = malloc(raw_data_before_null_byte + 1);
-    if (null_terminted_data == NULL)
-    {
-        free(recvd_bytes);
-        return NULL;
-    }
-
-    // Copy the data
-    memcpy(null_terminted_data, recvd_bytes, raw_data_before_null_byte);
-    null_terminted_data[raw_data_before_null_byte] = '\0';
-
-    printf("Null Terminated Data: %s", null_terminted_data);
-    fflush(stdout);
-    free(recvd_bytes);
-
-    return null_terminted_data;
+    buffer[expected_len] = '\0';
+    return buffer;
 }
+
+// NEEDS TO GO SOMEWHERE ELSE!!!!!!
+//      // Find null byte
+//      size_t raw_data_before_null_byte = 0;
+//      while (raw_data_before_null_byte < recvd_len && recvd_bytes[raw_data_before_null_byte] != '\0')
+//      {
+//          raw_data_before_null_byte++;
+//      }
+
+//     // memmory allocate length of data before null byte +1 for null
+//     char *null_terminted_data = malloc(raw_data_before_null_byte + 1);
+//     if (null_terminted_data == NULL)
+//     {
+//         free(recvd_bytes);
+//         return NULL;
+//     }
+
+//     // Copy the data
+//     memcpy(null_terminted_data, recvd_bytes, raw_data_before_null_byte);
+//     null_terminted_data[raw_data_before_null_byte] = '\0';
+
+//     printf("Null Terminated Data: %s\n", null_terminted_data);
+//     fflush(stdout);
+//     free(recvd_bytes);
+
+//     return null_terminted_data;
+// }

@@ -108,14 +108,13 @@ int setup_server(server_t *server)
 
 void *handle_client(void *arg)
 {
-    // needs to be void ptr because of hreading
     int client_socket = *(int *)arg;
     free(arg);
 
     printf("Client connected. Socket #%d\n", client_socket);
     fflush(stdout);
 
-    const char *msg = "Connection successful\0";
+    const char *msg = "Connection successful";
     if (!send_all(client_socket, msg, strlen(msg)))
     {
         perror("Send failed");
@@ -123,44 +122,40 @@ void *handle_client(void *arg)
         return NULL;
     }
 
-    // why doesn't this print??!?!?!?!?!?!?
     printf("Message Sent To Client!\n");
     fflush(stdout);
 
-    // Continuously receive data from the client
     while (1)
     {
-        // recv_expected returns ptr to null terminated string
-        // using buffer doesnt work because its too big so its never reaches.
-        char *data = recv_expected(client_socket, 1);
-        if (data == NULL)
+        // Step 1: Receive the expected length of the incoming message (1 byte)
+        char *expected_len_str = recv_expected(client_socket, 1); // 1 byte for the expected length
+        if (expected_len_str == NULL)
         {
             printf("Client on socket %d disconnected or error occurred.\n", client_socket);
             break;
         }
 
-        // char output[BUFFER_SIZE];
-        // int i = 0;
+        int expected_len = (unsigned char)expected_len_str[0] - 1;
+        free(expected_len_str);
 
-        // while (*data != '\0' && i < BUFFER_SIZE)
-        // {
-        //     output[i] = *data;
-        //     i++;
-        //     data++;
-        // }
-        // output[i] = '\0';
+        char *data = recv_expected(client_socket, expected_len);
+        if (data == NULL)
+        {
+            printf("Failed to receive message content.\n");
+            break;
+        }
 
         printf("Received from %d: %s\n", client_socket, data);
         fflush(stdout);
 
-        if (!send_all(client_socket, data, strlen(data)))
+        if (!send_all(client_socket, data, expected_len))
         {
             perror("Send failed");
             free(data);
-            break;
+            return NULL;
         }
-        broadcast_to_all_clients(data, client_socket);
 
+        broadcast_to_all_clients(data, client_socket);
         free(data);
     }
 
