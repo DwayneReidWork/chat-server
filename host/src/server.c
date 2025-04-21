@@ -124,20 +124,34 @@ void *handle_client(void *arg)
     }
 
     // why doesn't this print??!?!?!?!?!?!?
-    printf("Message Sent To Client!");
+    printf("Message Sent To Client!\n");
+    fflush(stdout);
 
     // Continuously receive data from the client
     while (1)
     {
         // recv_expected returns ptr to null terminated string
-        char *data = recv_expected(client_socket, BUFFER_SIZE);
+        // using buffer doesnt work because its too big so its never reaches.
+        char *data = recv_expected(client_socket, 1);
         if (data == NULL)
         {
             printf("Client on socket %d disconnected or error occurred.\n", client_socket);
             break;
         }
 
+        // char output[BUFFER_SIZE];
+        // int i = 0;
+
+        // while (*data != '\0' && i < BUFFER_SIZE)
+        // {
+        //     output[i] = *data;
+        //     i++;
+        //     data++;
+        // }
+        // output[i] = '\0';
+
         printf("Received from %d: %s\n", client_socket, data);
+        fflush(stdout);
 
         if (!send_all(client_socket, data, strlen(data)))
         {
@@ -147,7 +161,7 @@ void *handle_client(void *arg)
         }
         broadcast_to_all_clients(data, client_socket);
 
-        free(data); // Free the received data after use
+        free(data);
     }
 
     close(client_socket);

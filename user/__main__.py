@@ -4,6 +4,7 @@ from . import netcomm as n
 #import netcomm as n # used for debugging
 
 BUFFER = 1024
+MAX_LENGTH = 1024
 
 client_socket = n.server_setup()
 
@@ -26,28 +27,34 @@ def receive_forever():
     while True:
         buffer = b''
         try:
-            data = client_socket.recv(1)
-            
-            #data = n.recv_expected(client_socket, BUFFER)
-            if data:
-                buffer += data
+            while len(buffer) < MAX_LENGTH:
+                byte = client_socket.recv(1)
+                if not byte:
+                    print("Connection closed by peer.")
+                    break
+                buffer += byte
+                if byte == b'\0':
+                    break
 
-                if b'\0' in buffer:
-                    print(f'\nReceived: {buffer.decode()}')
-            else:
-                print("Server disconnected.")
+            if len(buffer) == 0:
+                print("Error: empty buffer.")
                 break
-        except (ConnectionError) as e:
+
+            print(f'Buffer contents: {buffer}')
+
+        except ConnectionError as e:
             print(f"Connection Lost: {e}")
             break
-        except (OSError) as e:
+        except OSError as e:
             print(f"OS Error: {e}")
             break
         except Exception as e:
             print(f"Unexpected error: {e}")
             break
+
     client_socket.close()
     sys.exit()
+
 
 # new threads for receiving messages
 threading.Thread(target=receive_forever, daemon=True).start()

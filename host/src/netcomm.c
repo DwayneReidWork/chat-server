@@ -27,13 +27,14 @@ int send_all(int sock, const char *data, size_t data_len)
 
 char *recv_expected(int sock, size_t expected_len)
 {
+    size_t recvd_len = 0;
+
     char *recvd_bytes = (char *)malloc(expected_len);
     if (recvd_bytes == NULL)
     {
         return NULL;
     }
 
-    size_t recvd_len = 0;
     while (recvd_len < expected_len)
     {
         ssize_t received = recv(sock, recvd_bytes + recvd_len, expected_len - recvd_len, 0);
@@ -43,7 +44,8 @@ char *recv_expected(int sock, size_t expected_len)
             return NULL;
         }
         recvd_len += received;
-        printf("Received Len (variable): %ld", recvd_len);
+        printf("Received Len (variable): %ld\n", recvd_len);
+        fflush(stdout);
     }
 
     // Find null byte
@@ -66,6 +68,7 @@ char *recv_expected(int sock, size_t expected_len)
     null_terminted_data[raw_data_before_null_byte] = '\0';
 
     printf("Null Terminated Data: %s", null_terminted_data);
+    fflush(stdout);
     free(recvd_bytes);
 
     return null_terminted_data;
