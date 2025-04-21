@@ -110,7 +110,6 @@ int setup_server(server_t *server)
 
 void *handle_client(void *arg)
 {
-    // needs to be void ptr because of hreading
     int client_socket = *(int *)arg;
     free(arg);
 
