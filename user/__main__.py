@@ -15,17 +15,11 @@ def send_msg():
         
     try:
         message += "\0"
-        msg_size = len(message)
-        len_success = n.send_len(client_socket, msg_size)
         success = n.send_all(client_socket, message.encode())
         if success:
             print("Message sent successfully!")
         else:
             print("Failed to send message.") 
-        if len_success:
-            print("Length sent successfully!")
-        else:
-            print("Failed to send length.") 
     except Exception as e:
         print(f"Send Failed: {e}")
 
@@ -46,7 +40,7 @@ def receive_forever():
                 print("Error: empty buffer.")
                 break
 
-            print(f'Buffer contents: {buffer}')
+            print(f'Message Recieved: {buffer.decode()}')
 
         except ConnectionError as e:
             print(f"Connection Lost: {e}")

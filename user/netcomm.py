@@ -9,15 +9,6 @@ def server_setup():
     print(f"Connected to {host}:{port}")
     return s
 
-def send_len(sock: socket.socket, msg_size: int) -> bool:
-    send_len = 0
-
-    try:
-        send_len += sock.send(str(msg_size).encode())
-    except:
-        return False
-    return True
-
 def send_all(sock: socket.socket, data: bytes) -> bool:
     send_b = 0
     exp_len = len(data)
