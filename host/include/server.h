@@ -25,8 +25,6 @@ int setup_server(server_t *server);
 
 // from netcomm.c
 int send_all(int sock, const char *data, size_t data_len);
-char *recv_until_null(int sock);
-void add_client(int client_socket);
-void remove_client(int client_socket);
+char *recv_expected(int sock, size_t expected_len);
 
 #endif
