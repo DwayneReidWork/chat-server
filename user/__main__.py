@@ -1,7 +1,8 @@
 import sys
 import threading
 from . import netcomm as n
-# import netcomm as n # for debugging
+
+#import netcomm as n # for debugging
 
 BUFFER = 1024
 MAX_LENGTH = 1024
@@ -14,7 +15,8 @@ def send_msg():
             message = input("You: ")
             if message.lower() == 'exit':
                 client_socket.close()
-                sys.exit()
+                break
+                #sys.exit()
             message += "\0"
             success = n.send_all(client_socket, message.encode())
             if not success:
@@ -30,30 +32,37 @@ def receive_forever():
             while len(buffer) < MAX_LENGTH:
                 byte = client_socket.recv(1)
                 if not byte:
-                    print("\nConnection closed by peer.")
-                    sys.exit()
+                    print("\nNo data recieved.")
+                    break
                 buffer += byte
+            
                 if byte == b'\0':
                     break
 
             if len(buffer) == 0:
                 print("\nError: empty buffer.")
                 break
+            
+            else: 
+                print(f'\nReply: {buffer.decode()}\nYou: ', end='', flush=True)
 
-            print(f'\nReply: {buffer.decode()}\nYou: ', end='', flush=True)
 
         except ConnectionError as e:
             print(f"\nConnection Lost: {e}")
             break
-        except OSError as e:
-            print(f"\nOS Error: {e}")
+        except KeyboardInterrupt as e:
+            print(f'Keyboard Interrupttion: {e}.')
             break
-        except Exception as e:
-            print(f"\nUnexpected error: {e}")
-            break
+        # except OSError as e:
+        #     print(f"\nOS Error: {e}")
+        #     break
+        # except Exception as e:
+        #     print(f"\nUnexpected error: {e}")
+        #     break
 
-    client_socket.close()
-    sys.exit()
+
+    #client_socket.close()
+
 
 # Start receiving in a background thread
 threading.Thread(target=receive_forever, daemon=True).start()

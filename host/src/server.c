@@ -129,13 +129,23 @@ void *handle_client(void *arg)
 
             free(msg);
         }
+        else
+        {
+            // Client disconnected or recv failed
+            printf("Client on socket %d disconnected.\n", client_socket);
+            close(client_socket);
+            remove_client(client_socket);
+            break;
+        }
     }
+    return 0;
 }
 
 int accept_connections(server_t *server)
 {
     for (int i = 0; i < MAX_CONNECTIONS; i++)
     {
+        // set all spots in client array to -1 for available
         clients[i] = -1;
     }
 
@@ -176,7 +186,6 @@ int accept_connections(server_t *server)
     return 0;
 }
 
-// WIP
 void broadcast_to_all_clients(const char *msg, int sender_socket)
 {
     for (int i = 0; i < MAX_CONNECTIONS; ++i)
@@ -196,6 +205,7 @@ void add_client(int client_socket)
     {
         if (clients[i] == -1)
         {
+            // if slot is -1 its open to be used
             clients[i] = client_socket;
             break;
         }
@@ -208,6 +218,7 @@ void remove_client(int client_socket)
     {
         if (clients[i] == client_socket)
         {
+            // set client slot back to -1 ("remove")
             clients[i] = -1;
             break;
         }

@@ -14,6 +14,7 @@
 
 int main()
 {
+    int success;
     server_t server;
 
     if (0 != setup_server(&server))
@@ -21,8 +22,14 @@ int main()
         fprintf(stderr, "Server setup failed!\n");
         return -1;
     }
-
-    accept_connections(&server);
-
+    while (1)
+    {
+        success = accept_connections(&server);
+        if (!success)
+        {
+            printf("Error accepting connections");
+            continue;
+        }
+    }
     return 0;
 }
