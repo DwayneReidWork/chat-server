@@ -67,6 +67,7 @@
         "*.py": "python",
         "inet.h": "c",
         "stdio.h": "c",
-        "server.h": "c"
+        "server.h": "c",
+        "signal.h": "c"
     }
 }

@@ -3,6 +3,7 @@ add_executable(${PROJECT_NAME})
 target_compile_options(${PROJECT_NAME} PUBLIC 
     -Wall
     -Werror
+    -g -O0
     $<$<CONFIG:Debug>:-g -O0>
     #-ffile-prefix-map=${CMAKE_SOURCE_DIR}=server
 )

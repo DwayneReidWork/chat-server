@@ -53,15 +53,6 @@ def receive_forever():
         except KeyboardInterrupt as e:
             print(f'Keyboard Interrupttion: {e}.')
             break
-        # except OSError as e:
-        #     print(f"\nOS Error: {e}")
-        #     break
-        # except Exception as e:
-        #     print(f"\nUnexpected error: {e}")
-        #     break
-
-
-    #client_socket.close()
 
 
 # Start receiving in a background thread

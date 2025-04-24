@@ -11,12 +11,14 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <asm-generic/socket.h>
+#include <signal.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 
 #include "server.h"
 #include "netcomm.c"
 
+// create a struct with clients and thread
 int clients[MAX_CONNECTIONS];
 
 int setup_server(server_t *server)
@@ -83,7 +85,13 @@ int setup_server(server_t *server)
         break;
     }
 
+    // Setup server address information
+    // server->address = *((struct sockaddr_in *)p->ai_addr);
+    //  Use the first valid address found
+    // server->addrlen = p->ai_addrlen;
+    memcpy(&server->address, p->ai_addr, p->ai_addrlen);
     // Free the addrinfo struct
+
     freeaddrinfo(result);
 
     if (-1 == server->socket_fd)
@@ -92,11 +100,6 @@ int setup_server(server_t *server)
         return -1;
     }
 
-    // Setup server address information
-    server->address = *((struct sockaddr_in *)p->ai_addr);
-    // Use the first valid address found
-    server->addrlen = p->ai_addrlen;
-
     if (listen(server->socket_fd, MAX_CONNECTIONS) < 0)
     {
         perror("Listen failed");
@@ -104,14 +107,14 @@ int setup_server(server_t *server)
         return -1;
     }
 
-    printf("Server listening on port %d...\n", PORT);
+    printf("Server listening on port 4444...\n");
+    // printf("Server listening on port %d...\n", PORT);
     return 0;
 }
 
 void *handle_client(void *arg)
 {
     int client_socket = *(int *)arg;
-    free(arg);
 
     printf("Client connected. Socket #%d\n", client_socket);
     fflush(stdout);
@@ -122,7 +125,7 @@ void *handle_client(void *arg)
         // recv_expected returns ptr to null terminated string
         // using buffer doesnt work because its too big so its never reaches.
         char *msg = recv_until_null(client_socket);
-        if (msg)
+        if (NULL != msg)
         {
             printf("Socket %d sent: %s\n", client_socket, msg);
             broadcast_to_all_clients(msg, client_socket);
@@ -143,6 +146,12 @@ void *handle_client(void *arg)
 
 int accept_connections(server_t *server)
 {
+    struct sockaddr_storage client_addr;
+
+    socklen_t client_addr_len = sizeof(client_addr);
+
+    int new_connection;
+
     for (int i = 0; i < MAX_CONNECTIONS; i++)
     {
         // set all spots in client array to -1 for available
@@ -151,31 +160,23 @@ int accept_connections(server_t *server)
 
     while (1)
     {
-        int *new_connection = malloc(sizeof(int));
-        if (!new_connection)
-        {
-            perror("malloc failed");
-            continue;
-        }
+        new_connection = accept(server->socket_fd, (struct sockaddr *)&client_addr, &client_addr_len);
 
-        *new_connection = accept(server->socket_fd, (struct sockaddr *)&server->address, &server->addrlen);
-        if (*new_connection < 0)
+        if (new_connection < 0)
         {
             perror("accept failed");
-            free(new_connection);
             continue;
         }
 
-        add_client(*new_connection);
+        add_client(new_connection);
         printf("\nConnection received!\n");
         fflush(stdout);
 
         pthread_t thread_id;
-        if (pthread_create(&thread_id, NULL, handle_client, new_connection) != 0)
+        if (pthread_create(&thread_id, NULL, handle_client, &new_connection) != 0)
         {
             perror("pthread_create failed");
-            close(*new_connection);
-            free(new_connection);
+            close(new_connection);
         }
         else
         {

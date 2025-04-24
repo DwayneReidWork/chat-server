@@ -22,14 +22,12 @@ int main()
         fprintf(stderr, "Server setup failed!\n");
         return -1;
     }
-    while (1)
+
+    success = accept_connections(&server);
+    if (!success)
     {
-        success = accept_connections(&server);
-        if (!success)
-        {
-            printf("Error accepting connections");
-            continue;
-        }
+        printf("Error accepting connections\n");
     }
+
     return 0;
 }
