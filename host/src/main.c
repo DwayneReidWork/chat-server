@@ -1,21 +1,36 @@
 #define _XOPEN_SOURCE 700 // necessary to not get errors with the hints struct.
+#include <arpa/inet.h>
+#include <asm-generic/socket.h>
 #include <errno.h>
 #include <netdb.h>
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
-#include <arpa/inet.h>
-#include <asm-generic/socket.h>
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <unistd.h>
 
 #include "server.h"
+
+server_t server;
+
+void signal_handler(int num)
+{
+    remove_all_clients();
+    close(server.socket_fd);
+    exit(EXIT_SUCCESS);
+}
 
 int main()
 {
     int success;
-    server_t server;
+
+    struct sigaction sa;
+    sa.sa_handler = signal_handler;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = 0;
+    sigaction(SIGINT, &sa, NULL);
 
     if (0 != setup_server(&server))
     {

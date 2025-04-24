@@ -28,5 +28,6 @@ int send_all(int sock, const char *data, size_t data_len);
 char *recv_until_null(int sock);
 void add_client(int client_socket);
 void remove_client(int client_socket);
+void remove_all_clients();
 
 #endif

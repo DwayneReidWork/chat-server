@@ -2,24 +2,25 @@
 
 // #define _XOPEN_SOURCE 700 // necessary to not get errors with the hints struct.
 
+#include <arpa/inet.h>
+#include <asm-generic/socket.h>
 #include <errno.h>
 #include <netdb.h>
 #include <pthread.h>
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
-#include <arpa/inet.h>
-#include <asm-generic/socket.h>
-#include <signal.h>
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <unistd.h>
 
 #include "server.h"
 #include "netcomm.c"
 
 // create a struct with clients and thread
 int clients[MAX_CONNECTIONS];
+pthread_mutex_t clients_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 int setup_server(server_t *server)
 {
@@ -107,8 +108,8 @@ int setup_server(server_t *server)
         return -1;
     }
 
-    printf("Server listening on port 4444...\n");
-    // printf("Server listening on port %d...\n", PORT);
+    // printf("Server listening on port 4444...\n");
+    printf("Server listening on port %d...\n", PORT);
     return 0;
 }
 
@@ -189,6 +190,7 @@ int accept_connections(server_t *server)
 
 void broadcast_to_all_clients(const char *msg, int sender_socket)
 {
+    pthread_mutex_lock(&clients_mutex);
     for (int i = 0; i < MAX_CONNECTIONS; ++i)
     {
         // we have clients and not broacasting to self.
@@ -207,11 +209,13 @@ void broadcast_to_all_clients(const char *msg, int sender_socket)
             }
         }
     }
+    pthread_mutex_unlock(&clients_mutex);
 }
 
 // Add client to the global clients[] array
 void add_client(int client_socket)
 {
+    pthread_mutex_lock(&clients_mutex);
     for (int i = 0; i < MAX_CONNECTIONS; i++)
     {
         if (clients[i] == -1)
@@ -221,10 +225,12 @@ void add_client(int client_socket)
             break;
         }
     }
+    pthread_mutex_unlock(&clients_mutex);
 }
 
 void remove_client(int client_socket)
 {
+    pthread_mutex_lock(&clients_mutex);
     for (int i = 0; i < MAX_CONNECTIONS; i++)
     {
         if (clients[i] == client_socket)
@@ -234,4 +240,19 @@ void remove_client(int client_socket)
             break;
         }
     }
+    pthread_mutex_unlock(&clients_mutex);
+}
+
+void remove_all_clients()
+{
+    pthread_mutex_lock(&clients_mutex);
+    for (int i = 0; i < MAX_CONNECTIONS; i++)
+    {
+        if (clients[i] != -1)
+        {
+            close(clients[i]);
+            clients[i] = -1;
+        }
+    }
+    pthread_mutex_unlock(&clients_mutex);
 }
