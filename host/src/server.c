@@ -194,7 +194,17 @@ void broadcast_to_all_clients(const char *msg, int sender_socket)
         // we have clients and not broacasting to self.
         if (clients[i] != -1 && clients[i] != sender_socket)
         {
-            send_all(clients[i], msg, strlen(msg) + 1);
+            char reply_buffer[100];
+            int result = snprintf(reply_buffer, sizeof(reply_buffer), "User %d: %s", sender_socket, msg);
+
+            if (result >= 0 && result < sizeof(reply_buffer))
+            {
+                send_all(clients[i], reply_buffer, strlen(reply_buffer) + 1);
+            }
+            else
+            {
+                printf("Error: String too long or encoding error\n");
+            }
         }
     }
 }

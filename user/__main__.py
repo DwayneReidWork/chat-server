@@ -44,7 +44,7 @@ def receive_forever():
                 break
             
             else: 
-                print(f'\nReply: {buffer.decode()}\nYou: ', end='', flush=True)
+                print(f'\n{buffer.decode()}\nYou: ', end='', flush=True)
 
 
         except ConnectionError as e:
