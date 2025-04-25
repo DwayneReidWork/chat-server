@@ -1,7 +1,5 @@
-import sys
 import threading
 from . import netcomm as n
-
 #import netcomm as n # for debugging
 
 BUFFER = 1024
@@ -16,7 +14,6 @@ def send_msg():
             if message.lower() == 'exit':
                 client_socket.close()
                 break
-                #sys.exit()
             message += "\0"
             success = n.send_all(client_socket, message.encode())
             if not success:
@@ -53,7 +50,6 @@ def receive_forever():
         except KeyboardInterrupt as e:
             print(f'Keyboard Interrupttion: {e}.')
             break
-
 
 # Start receiving in a background thread
 threading.Thread(target=receive_forever, daemon=True).start()

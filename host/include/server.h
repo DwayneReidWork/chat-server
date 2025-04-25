@@ -10,6 +10,8 @@
 #define BUFFER_SIZE 1024
 #define MAX_CONNECTIONS 10
 
+extern volatile sig_atomic_t kill_child_threads;
+
 typedef struct
 {
     int socket_fd;

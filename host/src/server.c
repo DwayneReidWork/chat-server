@@ -108,60 +108,53 @@ int setup_server(server_t *server)
         return -1;
     }
 
-    // printf("Server listening on port 4444...\n");
     printf("Server listening on port %d...\n", PORT);
     return 0;
 }
 
 void *handle_client(void *arg)
 {
-    int client_socket = *(int *)arg;
+    int client_socket = *((int *)arg);
+    free(arg);
 
     printf("Client connected. Socket #%d\n", client_socket);
     fflush(stdout);
 
-    // Continuously receive data from the client
     while (1)
     {
-        // recv_expected returns ptr to null terminated string
-        // using buffer doesnt work because its too big so its never reaches.
         char *msg = recv_until_null(client_socket);
-        if (NULL != msg)
+        if (msg != NULL)
         {
             printf("Socket %d sent: %s\n", client_socket, msg);
             broadcast_to_all_clients(msg, client_socket);
-
             free(msg);
         }
         else
         {
-            // Client disconnected or recv failed
             printf("Client on socket %d disconnected.\n", client_socket);
             close(client_socket);
             remove_client(client_socket);
             break;
         }
     }
-    return 0;
+
+    return NULL;
 }
 
 int accept_connections(server_t *server)
 {
+
     struct sockaddr_storage client_addr;
-
     socklen_t client_addr_len = sizeof(client_addr);
-
-    int new_connection;
 
     for (int i = 0; i < MAX_CONNECTIONS; i++)
     {
-        // set all spots in client array to -1 for available
         clients[i] = -1;
     }
 
-    while (1)
+    while (1 != kill_child_threads)
     {
-        new_connection = accept(server->socket_fd, (struct sockaddr *)&client_addr, &client_addr_len);
+        int new_connection = accept(server->socket_fd, (struct sockaddr *)&client_addr, &client_addr_len);
 
         if (new_connection < 0)
         {
@@ -174,17 +167,31 @@ int accept_connections(server_t *server)
         fflush(stdout);
 
         pthread_t thread_id;
-        if (pthread_create(&thread_id, NULL, handle_client, &new_connection) != 0)
+        int *conn_ptr = malloc(sizeof(int));
+        if (conn_ptr == NULL)
+        {
+            perror("malloc failed");
+            close(new_connection);
+            continue;
+        }
+
+        *conn_ptr = new_connection;
+
+        if (0 != pthread_create(&thread_id, NULL, handle_client, conn_ptr))
         {
             perror("pthread_create failed");
             close(new_connection);
+            free(conn_ptr);
         }
         else
         {
-            pthread_detach(thread_id); // Automatically release resources when thread exits
+            pthread_join(thread_id, NULL);
         }
     }
 
+    remove_all_clients();
+    close(server->socket_fd);
+    exit(EXIT_FAILURE);
     return 0;
 }
 

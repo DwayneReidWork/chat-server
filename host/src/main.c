@@ -14,12 +14,14 @@
 #include "server.h"
 
 server_t server;
+volatile sig_atomic_t kill_child_threads = 0;
 
 void signal_handler(int num)
 {
-    remove_all_clients();
-    close(server.socket_fd);
-    exit(EXIT_SUCCESS);
+    kill_child_threads = 1;
+    // remove_all_clients();
+    // close(server.socket_fd);
+    // exit(EXIT_SUCCESS);
 }
 
 int main()
@@ -39,7 +41,7 @@ int main()
     }
 
     success = accept_connections(&server);
-    if (!success)
+    if (0 != success)
     {
         printf("Error accepting connections\n");
     }
