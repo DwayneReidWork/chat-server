@@ -152,7 +152,7 @@ int accept_connections(server_t *server)
         clients[i] = -1;
     }
 
-    while (1 != kill_child_threads)
+    while (!should_quit)
     {
         int new_connection = accept(server->socket_fd, (struct sockaddr *)&client_addr, &client_addr_len);
 
@@ -188,10 +188,9 @@ int accept_connections(server_t *server)
             pthread_join(thread_id, NULL);
         }
     }
-
+    printf("Here after should quit is set to true\n");
     remove_all_clients();
     close(server->socket_fd);
-    exit(EXIT_FAILURE);
     return 0;
 }
 

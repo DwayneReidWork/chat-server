@@ -1,6 +1,7 @@
 #ifndef SERVER_H
 #define SERVER_H
 
+#include <stdbool.h>
 #include <netinet/in.h> // For struct sockaddr_in
 #include <sys/types.h>  // For socklen_t
 
@@ -10,7 +11,7 @@
 #define BUFFER_SIZE 1024
 #define MAX_CONNECTIONS 10
 
-extern volatile sig_atomic_t kill_child_threads;
+extern _Atomic bool should_quit;
 
 typedef struct
 {

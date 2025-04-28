@@ -4,6 +4,7 @@
 #include <errno.h>
 #include <netdb.h>
 #include <signal.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -14,11 +15,13 @@
 #include "server.h"
 
 server_t server;
-volatile sig_atomic_t kill_child_threads = 0;
+_Atomic bool should_quit = false;
 
 void signal_handler(int num)
 {
-    kill_child_threads = 1;
+    should_quit = true;
+    write(STDOUT_FILENO, "Kill signal received.", 22);
+    accept_connections(&server);
     // remove_all_clients();
     // close(server.socket_fd);
     // exit(EXIT_SUCCESS);

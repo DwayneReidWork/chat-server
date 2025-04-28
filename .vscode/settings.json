@@ -68,6 +68,7 @@
         "inet.h": "c",
         "stdio.h": "c",
         "server.h": "c",
-        "signal.h": "c"
+        "signal.h": "c",
+        "stdbool.h": "c"
     }
 }
