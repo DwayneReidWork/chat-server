@@ -20,11 +20,10 @@ _Atomic bool should_quit = false;
 void signal_handler(int num)
 {
     should_quit = true;
-    write(STDOUT_FILENO, "Kill signal received.", 22);
-    accept_connections(&server);
-    // remove_all_clients();
-    // close(server.socket_fd);
-    // exit(EXIT_SUCCESS);
+    write(STDOUT_FILENO, "Kill signal received.\n", 22);
+    remove_all_clients();
+    close(server.socket_fd);
+    exit(EXIT_SUCCESS);
 }
 
 int main()

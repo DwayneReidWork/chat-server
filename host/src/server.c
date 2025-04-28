@@ -190,7 +190,9 @@ int accept_connections(server_t *server)
     }
     printf("Here after should quit is set to true\n");
     remove_all_clients();
+    printf("Removed all clients\n");
     close(server->socket_fd);
+    printf("Server closed?\n");
     return 0;
 }
 
@@ -257,6 +259,7 @@ void remove_all_clients()
         if (clients[i] != -1)
         {
             close(clients[i]);
+            printf("Client on socket %d removed.\n", clients[i]);
             clients[i] = -1;
         }
     }
