@@ -185,7 +185,9 @@ int accept_connections(server_t *server)
         }
         else
         {
-            pthread_join(thread_id, NULL);
+            // using p_thread join here means all concurrent threads will be running on socket 4 as its been freed up.
+            pthread_detach(thread_id);
+            // pthread_join(thread_id, NULL);
         }
     }
     printf("Here after should quit is set to true\n");

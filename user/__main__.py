@@ -1,4 +1,4 @@
-import sys
+import os
 import threading
 from . import netcomm as n
 #import netcomm as n # for debugging
@@ -14,8 +14,7 @@ def send_msg():
         try:
             message = input("You: ")
             if message.lower() == 'exit':
-                client_socket.close()
-                sys.exit(0)
+                shutdown_event.set()
                 break
             message += "\0"
             success = n.send_all(client_socket, message.encode())
@@ -60,9 +59,18 @@ def receive_forever():
         finally:
             if not client_socket._closed:
                 client_socket.close()
+            os._exit(0)
 
 # Start receiving in a background thread
-threading.Thread(target=receive_forever, daemon=True).start()
+recv_thread = threading.Thread(target=receive_forever, daemon=True)
+send_thread = threading.Thread(target=send_msg)
 
-# Run input loop in main thread
-send_msg()
+send_thread.start()
+recv_thread.start()
+
+send_thread.join()
+recv_thread.join()
+
+shutdown_event.set()
+#Run input loop in main thread
+#send_msg()
