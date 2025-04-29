@@ -28,6 +28,6 @@ target_link_libraries(
 )
 #actual c code you need to test against with testing. [Files here should not contain main]
 
-# target_sources(${PROJECT_NAME}_tests PRIVATE ../src/server.c)
+target_sources(${PROJECT_NAME}_tests PRIVATE ../src/server.c)
 
 target_sources(${PROJECT_NAME}_tests PRIVATE src/test_server.c)
