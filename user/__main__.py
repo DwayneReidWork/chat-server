@@ -70,7 +70,3 @@ recv_thread.start()
 
 send_thread.join()
 recv_thread.join()
-
-shutdown_event.set()
-#Run input loop in main thread
-#send_msg()

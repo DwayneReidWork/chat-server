@@ -159,7 +159,7 @@ int accept_connections(server_t *server)
         if (new_connection < 0)
         {
             perror("accept failed");
-            continue;
+            break;
         }
 
         add_client(new_connection);
@@ -171,8 +171,9 @@ int accept_connections(server_t *server)
         if (conn_ptr == NULL)
         {
             perror("malloc failed");
+            free(conn_ptr);
             close(new_connection);
-            continue;
+            break;
         }
 
         *conn_ptr = new_connection;
