@@ -42,12 +42,12 @@ static void test_handle_client_invalid_arg(void **state)
     assert_null(result);
 }
 
-void *run_accept_thread(void *arg)
-{
-    accept_connections((server_t *)arg);
-    return NULL;
-}
-
+// void *run_accept_thread(void *arg)
+// {
+//     accept_connections((server_t *)arg);
+//     return NULL;
+// }
+//
 // static void test_accept_connections(void **state)
 // {
 //     pthread_t t;
@@ -58,7 +58,7 @@ void *run_accept_thread(void *arg)
 //     pthread_join(t, NULL);
 //     assert_true(true); // make sure its not hanfing
 // }
-
+//
 // static void test_accept_connections_invalid_server(void **state)
 // {
 //     int result = accept_connections(&server);
