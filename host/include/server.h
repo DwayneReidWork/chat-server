@@ -17,7 +17,6 @@ typedef struct
 {
     int socket_fd;
     struct sockaddr_storage address;
-    // socklen_t addrlen;
 } server_t;
 
 // from server.c

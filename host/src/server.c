@@ -24,7 +24,11 @@ pthread_mutex_t clients_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 int setup_server(server_t *server)
 {
-
+    if (NULL == server)
+    {
+        perror("Invalid Server!");
+        return -1;
+    }
     int status = 0;
     // for reuse (optVal) 0 lets other servers to bind and listen
     // 1 allows other servers to bind and listen to the port and to connect
@@ -86,13 +90,9 @@ int setup_server(server_t *server)
         break;
     }
 
-    // Setup server address information
-    // server->address = *((struct sockaddr_in *)p->ai_addr);
-    //  Use the first valid address found
-    // server->addrlen = p->ai_addrlen;
     memcpy(&server->address, p->ai_addr, p->ai_addrlen);
-    // Free the addrinfo struct
 
+    // Free the addrinfo struct
     freeaddrinfo(result);
 
     if (-1 == server->socket_fd)
@@ -114,6 +114,11 @@ int setup_server(server_t *server)
 
 void *handle_client(void *arg)
 {
+    if (NULL == arg)
+    {
+        perror("Invalid Argument");
+        return NULL;
+    }
     int client_socket = *((int *)arg);
     free(arg);
 
@@ -171,7 +176,6 @@ int accept_connections(server_t *server)
         if (conn_ptr == NULL)
         {
             perror("malloc failed");
-            free(conn_ptr);
             close(new_connection);
             break;
         }
@@ -186,16 +190,13 @@ int accept_connections(server_t *server)
         }
         else
         {
-            // using p_thread join here means all concurrent threads will be running on socket 4 as its been freed up.
+            // using p_thread join here means all concurrent threads will be running on socket 4 as its been freed up. Pthread detatch ensure everyone is on their own thread.
             pthread_detach(thread_id);
-            // pthread_join(thread_id, NULL);
         }
     }
-    printf("Here after should quit is set to true\n");
     remove_all_clients();
     printf("Removed all clients\n");
     close(server->socket_fd);
-    printf("Server closed?\n");
     return 0;
 }
 
