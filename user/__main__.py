@@ -57,9 +57,8 @@ def receive_forever():
             shutdown_event.set()
             break
         finally:
-            if not client_socket._closed:
+            if shutdown_event.is_set() and not client_socket._closed:
                 client_socket.close()
-            os._exit(0)
 
 # Start receiving in a background thread
 recv_thread = threading.Thread(target=receive_forever, daemon=True)

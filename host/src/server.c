@@ -123,7 +123,6 @@ void *handle_client(void *arg)
     free(arg);
 
     printf("Client connected. Socket #%d\n", client_socket);
-    fflush(stdout);
 
     while (1)
     {
@@ -192,6 +191,7 @@ int accept_connections(server_t *server)
         {
             // using p_thread join here means all concurrent threads will be running on socket 4 as its been freed up. Pthread detatch ensure everyone is on their own thread.
             pthread_detach(thread_id);
+            // pthread_join(thread_id, NULL);
         }
     }
     remove_all_clients();
