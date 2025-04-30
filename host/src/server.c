@@ -124,7 +124,7 @@ void *handle_client(void *arg)
 
     printf("Client connected. Socket #%d\n", client_socket);
 
-    while (1)
+    while (!should_quit)
     {
         char *msg = recv_until_null(client_socket);
         if (msg != NULL)

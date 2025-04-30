@@ -32,12 +32,12 @@ def receive_forever():
                 byte = client_socket.recv(1)
                 if not byte:
                     print("\nNo data recieved.")
-                    shutdown_event.set()
+                    #shutdown_event.set()
                     break
                 buffer += byte
             
                 if byte == b'\0':
-                    shutdown_event.set()
+                    #shutdown_event.set()
                     break
 
             if len(buffer) == 0:
@@ -50,22 +50,16 @@ def receive_forever():
 
         except ConnectionError as e:
             print(f"\nConnection Lost: {e}")
-            shutdown_event.set()
+            #shutdown_event.set()
             break
         except KeyboardInterrupt as e:
             print(f'Keyboard Interrupttion: {e}.')
-            shutdown_event.set()
+            #shutdown_event.set()
             break
-        finally:
-            if shutdown_event.is_set() and not client_socket._closed:
-                client_socket.close()
+        # finally:
+        #     if shutdown_event.is_set() and not client_socket._closed:
+        #         client_socket.close()
 
 # Start receiving in a background thread
-recv_thread = threading.Thread(target=receive_forever, daemon=True)
-send_thread = threading.Thread(target=send_msg)
-
-send_thread.start()
-recv_thread.start()
-
-send_thread.join()
-recv_thread.join()
+recv_thread = threading.Thread(target=receive_forever, daemon=True).start()
+send_thread = threading.Thread(target=send_msg).start()
