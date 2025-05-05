@@ -1,15 +1,19 @@
 import os
 import threading
 from . import netcomm as n
-#import netcomm as n # for debugging
 
 BUFFER = 1024
 MAX_LENGTH = 1024
 
-client_socket = n.server_setup()
 shutdown_event = threading.Event()
 
-def send_msg():
+def create_client():
+    return n.server_setup()
+
+def send_msg(client_socket):
+    if client_socket is None:
+        return None
+    
     while not shutdown_event.is_set():
         try:
             message = input("You: ")
@@ -24,7 +28,10 @@ def send_msg():
             print(f"Send Failed: {e}")
             break
 
-def receive_forever():
+def receive_forever(client_socket):
+    if client_socket is None:
+        return None
+    
     while not shutdown_event.is_set():
         buffer = b''
         try:
@@ -46,19 +53,21 @@ def receive_forever():
             else: 
                 print(f'\n{buffer.decode()}\nYou: ', end='', flush=True)
 
-
         except ConnectionError as e:
             print(f"\nConnection Lost: {e}")
             shutdown_event.set()
         except KeyboardInterrupt as e:
-            print(f'Keyboard Interrupttion: {e}.')
+            print(f'Keyboard Interruption!')
             shutdown_event.set()
             os._exit(0)
-        # finally:
-        #     if shutdown_event.is_set() and not client_socket._closed:
-        #         client_socket.close()
+        finally:
+            if shutdown_event.is_set() and not client_socket._closed:
+                client_socket.close()
 
+def run_chat_client():
+    client_socket = create_client()
+    threading.Thread(target=receive_forever, args=(client_socket,), daemon=True).start()
+    threading.Thread(target=send_msg, args=(client_socket,)).start()
 
-
-recv_thread = threading.Thread(target=receive_forever, daemon=True).start()
-send_thread = threading.Thread(target=send_msg).start()
+if __name__ == "__main__":
+    run_chat_client()

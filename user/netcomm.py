@@ -10,6 +10,9 @@ def server_setup():
     return s
 
 def send_all(sock: socket.socket, data: bytes) -> bool:
+    if sock is None:
+        return False
+    
     send_b = 0
     exp_len = len(data)
 
@@ -25,8 +28,10 @@ def send_all(sock: socket.socket, data: bytes) -> bool:
             return False
     return True
 
-
 def recv_expected(sock: socket.socket, expected_len: int) -> bytes:
+    if sock is None or expected_len is None:
+        return None
+    
     recv_b = b''
     while len(recv_b) < expected_len:
         chunk = sock.recv(expected_len - len(recv_b))

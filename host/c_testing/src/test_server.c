@@ -42,30 +42,6 @@ static void test_handle_client_invalid_arg(void **state)
     assert_null(result);
 }
 
-// void *run_accept_thread(void *arg)
-// {
-//     accept_connections((server_t *)arg);
-//     return NULL;
-// }
-//
-// static void test_accept_connections(void **state)
-// {
-//     pthread_t t;
-//     should_quit = false;
-//     pthread_create(&t, NULL, run_accept_thread, &server);
-//     sleep(1);
-//     should_quit = true;
-//     pthread_join(t, NULL);
-//     assert_true(true); // make sure its not hanfing
-// }
-//
-// static void test_accept_connections_invalid_server(void **state)
-// {
-//     int result = accept_connections(&server);
-//     assert_int_equal(result, 0);
-//     should_quit = true;
-// }
-
 int main(void)
 {
     const struct CMUnitTest unit_tests[] = {
@@ -75,8 +51,6 @@ int main(void)
         cmocka_unit_test(test_setup_server_invalid_server),
         cmocka_unit_test(test_handle_client),
         cmocka_unit_test(test_handle_client_invalid_arg),
-        // cmocka_unit_test(test_accept_connections),
-        // cmocka_unit_test(test_accept_connections_invalid_server),
     };
     return cmocka_run_group_tests(unit_tests, NULL, NULL);
 }

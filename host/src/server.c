@@ -1,7 +1,6 @@
 // the definition of struct addrinfo is part of the POSIX standards. However, on some systems, the default standard libraries may not provide the necessary definitions or may limit certain features unless explicitly requested. By defining _XOPEN_SOURCE with a value like 700, you are telling the compiler to enable the POSIX-2008 features
 
 // #define _XOPEN_SOURCE 700 // necessary to not get errors with the hints struct.
-
 #include <arpa/inet.h>
 #include <asm-generic/socket.h>
 #include <errno.h>
@@ -147,7 +146,6 @@ void *handle_client(void *arg)
 
 int accept_connections(server_t *server)
 {
-
     struct sockaddr_storage client_addr;
     socklen_t client_addr_len = sizeof(client_addr);
 
@@ -189,9 +187,7 @@ int accept_connections(server_t *server)
         }
         else
         {
-            // using p_thread join here means all concurrent threads will be running on socket 4 as its been freed up. Pthread detatch ensure everyone is on their own thread.
             pthread_detach(thread_id);
-            // pthread_join(thread_id, NULL);
         }
     }
     remove_all_clients();
