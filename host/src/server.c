@@ -171,7 +171,6 @@ int accept_connections(server_t *server)
 
         add_client(new_connection);
         printf("\nConnection received!\n");
-        fflush(stdout);
 
         pthread_t thread_id;
         int *conn_ptr = malloc(sizeof(int));
@@ -208,6 +207,11 @@ void broadcast_to_all_clients(const char *msg, int sender_socket)
     {
         perror("Socket Error");
     }
+    if (NULL == msg)
+    {
+        perror("Message NULL");
+    }
+
     pthread_mutex_lock(&clients_mutex);
     for (int i = 0; i < MAX_CONNECTIONS; ++i)
     {

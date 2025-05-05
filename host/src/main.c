@@ -27,8 +27,7 @@ void signal_handler(int num)
 int main()
 {
     int success;
-    struct sigaction sa = {0};
-    sa.sa_handler = signal_handler;
+    struct sigaction sa = {.sa_handler = signal_handler};
     sigaction(SIGINT, &sa, NULL);
 
     if (0 != setup_server(&server))

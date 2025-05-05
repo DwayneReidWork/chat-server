@@ -11,8 +11,6 @@
 
 #include <cmocka.h>
 
-server_t server = {0};
-
 _Atomic bool should_quit = false;
 
 static void test_setup_server(void **state)
