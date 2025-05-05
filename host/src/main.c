@@ -45,5 +45,5 @@ int main()
         printf("Error accepting connections\n");
     }
 
-    return 0;
+    return success;
 }
