@@ -42,7 +42,7 @@ int main()
     success = accept_connections(&server);
     if (0 != success)
     {
-        printf("Error accepting connections\n");
+        fprintf(stderr, "Error accepting connections\n");
     }
 
     return success;
