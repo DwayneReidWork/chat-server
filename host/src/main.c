@@ -27,10 +27,8 @@ void signal_handler(int num)
 int main()
 {
     int success;
-    struct sigaction sa;
+    struct sigaction sa = {0};
     sa.sa_handler = signal_handler;
-    sigemptyset(&sa.sa_mask);
-    sa.sa_flags = 0;
     sigaction(SIGINT, &sa, NULL);
 
     if (0 != setup_server(&server))
