@@ -17,6 +17,7 @@
 server_t server;
 _Atomic bool should_quit = false;
 
+/*Signal Handler for ctrl+c*/
 void signal_handler(int num)
 {
     should_quit = true;
@@ -26,7 +27,6 @@ void signal_handler(int num)
 int main()
 {
     int success;
-
     struct sigaction sa;
     sa.sa_handler = signal_handler;
     sigemptyset(&sa.sa_mask);

@@ -6,6 +6,7 @@
 #include <arpa/inet.h>
 
 #define BUFFER_SIZE 1024
+#define MAX_MSG_SIZE 1024
 
 // Function to send all data, returns 1 on success, 0 on failure
 int send_all(int sock, const char *data, size_t data_len)
@@ -14,7 +15,7 @@ int send_all(int sock, const char *data, size_t data_len)
     while (total_sent_bits < data_len)
     {
         ssize_t sent_bits = send(sock, data + total_sent_bits, data_len - total_sent_bits, 0);
-        if (sent_bits == -1)
+        if (-1 == sent_bits)
         {
             return 0; // Return false if send fails
         }
@@ -24,8 +25,6 @@ int send_all(int sock, const char *data, size_t data_len)
 }
 
 // Receive from socket until hitting a null char.
-#define MAX_MSG_SIZE 1024
-
 char *recv_until_null(int sock)
 {
     char buffer[MAX_MSG_SIZE];
