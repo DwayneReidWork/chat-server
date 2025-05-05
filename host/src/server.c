@@ -1,6 +1,6 @@
 // the definition of struct addrinfo is part of the POSIX standards. However, on some systems, the default standard libraries may not provide the necessary definitions or may limit certain features unless explicitly requested. By defining _XOPEN_SOURCE with a value like 700, you are telling the compiler to enable the POSIX-2008 features
 
-// #define _XOPEN_SOURCE 700 // necessary to not get errors with the hints struct.
+#define _XOPEN_SOURCE 700 // necessary to not get errors with the hints struct.
 #include <arpa/inet.h>
 #include <asm-generic/socket.h>
 #include <errno.h>
@@ -201,6 +201,7 @@ int accept_connections(server_t *server)
     return 0;
 }
 
+/*Send message to all connected users*/
 void broadcast_to_all_clients(const char *msg, int sender_socket)
 {
     if (-1 == sender_socket)
