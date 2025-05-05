@@ -17,6 +17,7 @@ _Atomic bool should_quit = false;
 
 static void test_setup_server(void **state)
 {
+    server_t server = {0};
     int result = setup_server(&server);
     assert_int_equal(result, 0);
 }
