@@ -17,6 +17,7 @@
 server_t server;
 _Atomic bool should_quit = false;
 
+/*Signal Handler for ctrl+c*/
 void signal_handler(int num)
 {
     should_quit = true;
@@ -26,11 +27,8 @@ void signal_handler(int num)
 int main()
 {
     int success;
-
-    struct sigaction sa;
+    struct sigaction sa = {0};
     sa.sa_handler = signal_handler;
-    sigemptyset(&sa.sa_mask);
-    sa.sa_flags = 0;
     sigaction(SIGINT, &sa, NULL);
 
     if (0 != setup_server(&server))
@@ -42,8 +40,8 @@ int main()
     success = accept_connections(&server);
     if (0 != success)
     {
-        printf("Error accepting connections\n");
+        fprintf(stderr, "Error accepting connections\n");
     }
 
-    return 0;
+    return success;
 }

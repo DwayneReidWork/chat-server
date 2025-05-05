@@ -1,6 +1,6 @@
 // the definition of struct addrinfo is part of the POSIX standards. However, on some systems, the default standard libraries may not provide the necessary definitions or may limit certain features unless explicitly requested. By defining _XOPEN_SOURCE with a value like 700, you are telling the compiler to enable the POSIX-2008 features
 
-// #define _XOPEN_SOURCE 700 // necessary to not get errors with the hints struct.
+#define _XOPEN_SOURCE 700 // necessary to not get errors with the hints struct.
 #include <arpa/inet.h>
 #include <asm-generic/socket.h>
 #include <errno.h>
@@ -146,6 +146,11 @@ void *handle_client(void *arg)
 
 int accept_connections(server_t *server)
 {
+    if (NULL == server)
+    {
+        perror("Server Error");
+        return -1;
+    }
     struct sockaddr_storage client_addr;
     socklen_t client_addr_len = sizeof(client_addr);
 
@@ -196,8 +201,13 @@ int accept_connections(server_t *server)
     return 0;
 }
 
+/*Send message to all connected users*/
 void broadcast_to_all_clients(const char *msg, int sender_socket)
 {
+    if (-1 == sender_socket)
+    {
+        perror("Socket Error");
+    }
     pthread_mutex_lock(&clients_mutex);
     for (int i = 0; i < MAX_CONNECTIONS; ++i)
     {
@@ -223,6 +233,10 @@ void broadcast_to_all_clients(const char *msg, int sender_socket)
 // Add client to the global clients[] array
 void add_client(int client_socket)
 {
+    if (-1 == client_socket)
+    {
+        perror("Socket Error");
+    }
     pthread_mutex_lock(&clients_mutex);
     for (int i = 0; i < MAX_CONNECTIONS; i++)
     {
@@ -236,8 +250,13 @@ void add_client(int client_socket)
     pthread_mutex_unlock(&clients_mutex);
 }
 
+/*Single client disconnecting*/
 void remove_client(int client_socket)
 {
+    if (-1 == client_socket)
+    {
+        perror("Socket Error");
+    }
     pthread_mutex_lock(&clients_mutex);
     for (int i = 0; i < MAX_CONNECTIONS; i++)
     {
@@ -250,7 +269,7 @@ void remove_client(int client_socket)
     }
     pthread_mutex_unlock(&clients_mutex);
 }
-
+/*Cleanup for all connected clients on server shutdown*/
 void remove_all_clients()
 {
     pthread_mutex_lock(&clients_mutex);

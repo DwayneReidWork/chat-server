@@ -2,8 +2,8 @@
 #define SERVER_H
 
 #include <stdbool.h>
-#include <netinet/in.h> // For struct sockaddr_in
-#include <sys/types.h>  // For socklen_t
+#include <netinet/in.h>
+#include <sys/types.h>
 
 #define _XOPEN_SOURCE 700 // necessary to not get errors with the hints
 #define PORT 4444

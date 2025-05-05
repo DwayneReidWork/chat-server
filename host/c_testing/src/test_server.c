@@ -12,10 +12,12 @@
 #include <cmocka.h>
 
 server_t server = {0};
+
 _Atomic bool should_quit = false;
 
 static void test_setup_server(void **state)
 {
+    server_t server = {0};
     int result = setup_server(&server);
     assert_int_equal(result, 0);
 }
@@ -29,7 +31,7 @@ static void test_setup_server_invalid_server(void **state)
 static void test_handle_client(void **state)
 {
     int *socket_fd = malloc(sizeof(int));
-    assert_non_null(socket_fd); // check that malloc succeded
+    assert_non_null(socket_fd);
     *socket_fd = 1;
 
     void *result = handle_client(socket_fd);
