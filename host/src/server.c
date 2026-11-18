@@ -166,7 +166,11 @@ int accept_connections(server_t *server)
         if (new_connection < 0)
         {
             perror("accept failed");
-            break;
+            if (should_quit)
+            {
+                break;
+            }
+            continue;
         }
 
         add_client(new_connection);

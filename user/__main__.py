@@ -63,6 +63,7 @@ def receive_forever(client_socket):
         finally:
             if shutdown_event.is_set() and not client_socket._closed:
                 client_socket.close()
+        break
 
 def run_chat_client():
     client_socket = create_client()
